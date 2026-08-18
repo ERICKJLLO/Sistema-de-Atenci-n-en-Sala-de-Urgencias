@@ -115,7 +115,254 @@ def punto_3(lista):
     return lista
 
 
+def punto_4(lista):
+    lista_aislamiento = dlinkedlist()
+
+    inicio = lista.find_by_id("P-103")
+    fin = lista.find_by_id("P-109")
+
+    if inicio is None or fin is None:
+        print("Punto 4")
+        mostrar_lista("Lista principal sin cambios porque alguno de los IDs no existe:", lista)
+        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
+        return lista, lista_aislamiento
+
+    primero = inicio
+    ultimo = fin
+    actual = lista.head
+    encontrado_inicio = False
+    encontrado_fin = False
+
+    while actual is not None:
+        if actual is inicio:
+            encontrado_inicio = True
+        if actual is fin:
+            encontrado_fin = True
+        actual = actual.next
+
+    if not encontrado_inicio or not encontrado_fin:
+        print("Punto 4")
+        mostrar_lista("Lista principal sin cambios porque alguno de los IDs no existe:", lista)
+        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
+        return lista, lista_aislamiento
+
+    if primero is ultimo or primero.next is ultimo or ultimo.next is primero:
+        print("Punto 4")
+        mostrar_lista("Lista principal sin cambios porque no hay nodos intermedios:", lista)
+        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
+        return lista, lista_aislamiento
+
+    actual = lista.head
+    while actual is not None and actual is not inicio and actual is not fin:
+        actual = actual.next
+
+    if actual is None:
+        print("Punto 4")
+        mostrar_lista("Lista principal sin cambios porque los IDs no están en la misma lista:", lista)
+        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
+        return lista, lista_aislamiento
+
+    if inicio is not lista.head and fin is not lista.head:
+        if lista.head is not None:
+            actual = lista.head
+            while actual is not None and actual is not fin:
+                actual = actual.next
+            if actual is fin:
+                primero, ultimo = fin, inicio
+
+    bloque_inicio = primero.next
+    bloque_fin = ultimo.prev
+
+    if bloque_inicio is None or bloque_fin is None:
+        print("Punto 4")
+        mostrar_lista("Lista principal sin cambios porque no hay nodos intermedios:", lista)
+        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
+        return lista, lista_aislamiento
+
+    primero.next = ultimo
+    ultimo.prev = primero
+    bloque_inicio.prev = None
+    bloque_fin.next = None
+
+    lista_aislamiento.head = bloque_inicio
+    lista_aislamiento.tail = bloque_fin
+
+    actual = bloque_inicio
+    contador = 0
+    while actual is not None:
+        contador += 1
+        actual = actual.next
+    lista_aislamiento.size = contador
+
+    print("Punto 4")
+    mostrar_lista("Lista principal después de aislar el tramo:", lista)
+    mostrar_lista("Lista de aislamiento:", lista_aislamiento)
+    return lista, lista_aislamiento
+
+
+def punto_5(lista):
+    cantidad_pediatria = 0
+    cantidad_adulto = 0
+    actual = lista.head
+
+    while actual is not None:
+        if actual.value.categoria == "pediatria":
+            cantidad_pediatria += 1
+        elif actual.value.categoria == "adulto":
+            cantidad_adulto += 1
+        actual = actual.next
+
+    if cantidad_pediatria > cantidad_adulto:
+        actual = lista.head
+        while actual is not None:
+            siguiente = actual.next
+            actual.next = actual.prev
+            actual.prev = siguiente
+            actual = siguiente
+
+        cabeza_original = lista.head
+        lista.head = lista.tail
+        lista.tail = cabeza_original
+
+    print("Punto 5")
+    mostrar_lista("Lista después de la inversión condicional:", lista)
+    return lista
+
+
+def punto_6(lista):
+    if lista.head is None:
+        print("Punto 6")
+        mostrar_lista("Lista vacía:", lista)
+        return lista
+
+    def prioridad(paciente):
+        orden_categoria = {"tercera_edad": 0, "pediatria": 1, "adulto": 2}
+        return (paciente.nivel_triage, orden_categoria[paciente.categoria])
+
+    actual = lista.head
+    while actual is not None:
+        siguiente = actual.next
+        actual.prev = None
+        actual.next = None
+
+        if lista.head is not actual:
+            cursor = lista.head
+            anterior = None
+            while cursor is not None and prioridad(cursor.value) <= prioridad(actual.value):
+                anterior = cursor
+                cursor = cursor.next
+
+            if anterior is None:
+                actual.next = lista.head
+                lista.head.prev = actual
+                lista.head = actual
+            else:
+                actual.prev = anterior
+                actual.next = anterior.next
+                if anterior.next is not None:
+                    anterior.next.prev = actual
+                else:
+                    lista.tail = actual
+                anterior.next = actual
+        else:
+            lista.tail = lista.head
+
+        actual = siguiente
+
+    cursor = lista.head
+    while cursor is not None and cursor.next is not None:
+        cursor = cursor.next
+    lista.tail = cursor
+
+    print("Punto 6")
+    mostrar_lista("Lista reordenada por triage y categoría:", lista)
+    return lista
+
+
+def punto_7(lista, lista_derivados):
+    if lista_derivados.head is None:
+        print("Punto 7")
+        mostrar_lista("No hay derivados para intercalar:", lista)
+        mostrar_lista("Lista derivados vacía:", lista_derivados)
+        return lista
+
+    if lista.head is None:
+        lista.head = lista_derivados.head
+        lista.tail = lista_derivados.tail
+        lista_derivados.clear()
+        print("Punto 7")
+        mostrar_lista("Lista principal después de recibir la lista derivada:", lista)
+        mostrar_lista("Lista derivados vacía:", lista_derivados)
+        return lista
+
+    nueva_head = None
+    nueva_tail = None
+    anterior = None
+    main_actual = lista.head
+    deriv_actual = lista_derivados.head
+    contador = 0
+
+    while main_actual is not None:
+        nodo = main_actual
+        main_actual = main_actual.next
+        nodo.prev = None
+        nodo.next = None
+
+        if nueva_head is None:
+            nueva_head = nodo
+        else:
+            anterior.next = nodo
+            nodo.prev = anterior
+
+        anterior = nodo
+        nueva_tail = nodo
+        contador += 1
+
+        if contador == 2 and deriv_actual is not None:
+            nodo_derivado = deriv_actual
+            deriv_actual = deriv_actual.next
+            nodo_derivado.prev = None
+            nodo_derivado.next = None
+
+            anterior.next = nodo_derivado
+            nodo_derivado.prev = anterior
+            anterior = nodo_derivado
+            nueva_tail = nodo_derivado
+            contador = 0
+
+    while deriv_actual is not None:
+        nodo_derivado = deriv_actual
+        deriv_actual = deriv_actual.next
+        nodo_derivado.prev = None
+        nodo_derivado.next = None
+
+        anterior.next = nodo_derivado
+        nodo_derivado.prev = anterior
+        anterior = nodo_derivado
+        nueva_tail = nodo_derivado
+
+    lista.head = nueva_head
+    lista.tail = nueva_tail
+    lista_derivados.clear()
+
+    print("Punto 7")
+    mostrar_lista("Lista principal después del intercalado 2:1:", lista)
+    mostrar_lista("Lista derivados vacía:", lista_derivados)
+    return lista
+
+
 if __name__ == "__main__":
     punto_1()
     punto_2(construir_lista_base())
     punto_3(construir_lista_base())
+    punto_4(construir_lista_base())
+    punto_5(construir_lista_base())
+    punto_6(construir_lista_base())
+
+    lista_7 = construir_lista_base()
+    lista_derivados = dlinkedlist()
+    lista_derivados.append(Paciente("D-201", "adulto", 2))
+    lista_derivados.append(Paciente("D-202", "pediatria", 1))
+    lista_derivados.append(Paciente("D-203", "tercera_edad", 2))
+    lista_derivados.append(Paciente("D-204", "adulto", 3))
+    punto_7(lista_7, lista_derivados)
