@@ -305,6 +305,7 @@ def punto_6(lista):
 
 
 def punto_7(lista, lista_derivados):
+
     if lista_derivados.head is None:
         print("Punto 7")
         mostrar_lista("No hay derivados para intercalar:", lista)
@@ -314,65 +315,84 @@ def punto_7(lista, lista_derivados):
     if lista.head is None:
         lista.head = lista_derivados.head
         lista.tail = lista_derivados.tail
-        lista_derivados.clear()
+        lista.size = lista_derivados.size
+
+        lista_derivados.head = None
+        lista_derivados.tail = None
+        lista_derivados.size = 0
+
         print("Punto 7")
-        mostrar_lista("Lista principal después de recibir la lista derivada:", lista)
+        mostrar_lista("Lista principal después del intercalado 2:1:", lista)
         mostrar_lista("Lista derivados vacía:", lista_derivados)
+
         return lista
+
+    main_actual = lista.head
+    deriv_actual = lista_derivados.head
 
     nueva_head = None
     nueva_tail = None
-    anterior = None
-    main_actual = lista.head
-    deriv_actual = lista_derivados.head
-    contador = 0
+
+    cantidad_main = 0
 
     while main_actual is not None:
-        nodo = main_actual
-        main_actual = main_actual.next
-        nodo.prev = None
-        nodo.next = None
+
+        siguiente_main = main_actual.next
+
+        main_actual.next = None
+        main_actual.prev = None
 
         if nueva_head is None:
-            nueva_head = nodo
+            nueva_head = main_actual
+            nueva_tail = main_actual
         else:
-            anterior.next = nodo
-            nodo.prev = anterior
+            nueva_tail.next = main_actual
+            main_actual.prev = nueva_tail
+            nueva_tail = main_actual
 
-        anterior = nodo
-        nueva_tail = nodo
-        contador += 1
+        cantidad_main += 1
 
-        if contador == 2 and deriv_actual is not None:
-            nodo_derivado = deriv_actual
-            deriv_actual = deriv_actual.next
-            nodo_derivado.prev = None
-            nodo_derivado.next = None
+        if cantidad_main == 2 and deriv_actual is not None:
 
-            anterior.next = nodo_derivado
-            nodo_derivado.prev = anterior
-            anterior = nodo_derivado
-            nueva_tail = nodo_derivado
-            contador = 0
+            siguiente_derivado = deriv_actual.next
+
+            deriv_actual.next = None
+            deriv_actual.prev = None
+
+            nueva_tail.next = deriv_actual
+            deriv_actual.prev = nueva_tail
+            nueva_tail = deriv_actual
+
+            deriv_actual = siguiente_derivado
+            cantidad_main = 0
+
+        main_actual = siguiente_main
 
     while deriv_actual is not None:
-        nodo_derivado = deriv_actual
-        deriv_actual = deriv_actual.next
-        nodo_derivado.prev = None
-        nodo_derivado.next = None
 
-        anterior.next = nodo_derivado
-        nodo_derivado.prev = anterior
-        anterior = nodo_derivado
-        nueva_tail = nodo_derivado
+        siguiente_derivado = deriv_actual.next
+
+        deriv_actual.next = None
+        deriv_actual.prev = None
+
+        nueva_tail.next = deriv_actual
+        deriv_actual.prev = nueva_tail
+        nueva_tail = deriv_actual
+
+        deriv_actual = siguiente_derivado
 
     lista.head = nueva_head
     lista.tail = nueva_tail
-    lista_derivados.clear()
+    lista.size = lista.size + lista_derivados.size
+
+    lista_derivados.head = None
+    lista_derivados.tail = None
+    lista_derivados.size = 0
 
     print("Punto 7")
     mostrar_lista("Lista principal después del intercalado 2:1:", lista)
     mostrar_lista("Lista derivados vacía:", lista_derivados)
+
     return lista
 
 
