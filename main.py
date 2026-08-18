@@ -118,8 +118,16 @@ def punto_3(lista):
 def punto_4(lista):
     lista_aislamiento = dlinkedlist()
 
-    inicio = lista.find_by_id("P-103")
-    fin = lista.find_by_id("P-109")
+    inicio = None
+    fin = None
+    actual = lista.head
+
+    while actual is not None:
+        if actual.value.id_paciente == "P-103":
+            inicio = actual
+        if actual.value.id_paciente == "P-109":
+            fin = actual
+        actual = actual.next
 
     if inicio is None or fin is None:
         print("Punto 4")
@@ -129,74 +137,52 @@ def punto_4(lista):
 
     primero = inicio
     ultimo = fin
-    actual = lista.head
-    encontrado_inicio = False
-    encontrado_fin = False
+
+    actual = inicio
+    encontrado = False
 
     while actual is not None:
-        if actual is inicio:
-            encontrado_inicio = True
         if actual is fin:
-            encontrado_fin = True
+            encontrado = True
+            break
         actual = actual.next
 
-    if not encontrado_inicio or not encontrado_fin:
-        print("Punto 4")
-        mostrar_lista("Lista principal sin cambios porque alguno de los IDs no existe:", lista)
-        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
-        return lista, lista_aislamiento
+    if not encontrado:
+        primero = fin
+        ultimo = inicio
 
-    if primero is ultimo or primero.next is ultimo or ultimo.next is primero:
+    if primero.next is ultimo:
         print("Punto 4")
         mostrar_lista("Lista principal sin cambios porque no hay nodos intermedios:", lista)
         mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
         return lista, lista_aislamiento
-
-    actual = lista.head
-    while actual is not None and actual is not inicio and actual is not fin:
-        actual = actual.next
-
-    if actual is None:
-        print("Punto 4")
-        mostrar_lista("Lista principal sin cambios porque los IDs no están en la misma lista:", lista)
-        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
-        return lista, lista_aislamiento
-
-    if inicio is not lista.head and fin is not lista.head:
-        if lista.head is not None:
-            actual = lista.head
-            while actual is not None and actual is not fin:
-                actual = actual.next
-            if actual is fin:
-                primero, ultimo = fin, inicio
 
     bloque_inicio = primero.next
     bloque_fin = ultimo.prev
 
-    if bloque_inicio is None or bloque_fin is None:
-        print("Punto 4")
-        mostrar_lista("Lista principal sin cambios porque no hay nodos intermedios:", lista)
-        mostrar_lista("Lista de aislamiento vacía:", lista_aislamiento)
-        return lista, lista_aislamiento
+    contador = 0
+    actual = bloque_inicio
+
+    while actual is not ultimo:
+        contador += 1
+        actual = actual.next
 
     primero.next = ultimo
     ultimo.prev = primero
+
     bloque_inicio.prev = None
     bloque_fin.next = None
 
     lista_aislamiento.head = bloque_inicio
     lista_aislamiento.tail = bloque_fin
-
-    actual = bloque_inicio
-    contador = 0
-    while actual is not None:
-        contador += 1
-        actual = actual.next
     lista_aislamiento.size = contador
+
+    lista.size -= contador
 
     print("Punto 4")
     mostrar_lista("Lista principal después de aislar el tramo:", lista)
     mostrar_lista("Lista de aislamiento:", lista_aislamiento)
+
     return lista, lista_aislamiento
 
 
