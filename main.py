@@ -216,52 +216,91 @@ def punto_5(lista):
 
 
 def punto_6(lista):
+
     if lista.head is None:
         print("Punto 6")
         mostrar_lista("Lista vacía:", lista)
         return lista
 
-    def prioridad(paciente):
-        orden_categoria = {"tercera_edad": 0, "pediatria": 1, "adulto": 2}
-        return (paciente.nivel_triage, orden_categoria[paciente.categoria])
+    def categoria_prioridad(categoria):
+        if categoria == "tercera_edad":
+            return 1
+        elif categoria == "pediatria":
+            return 2
+        else:
+            return 3
+
+    def debe_ir_despues(paciente_a, paciente_b):
+
+        if paciente_a.nivel_triage > paciente_b.nivel_triage:
+            return True
+
+        if paciente_a.nivel_triage < paciente_b.nivel_triage:
+            return False
+
+        if categoria_prioridad(paciente_a.categoria) > categoria_prioridad(paciente_b.categoria):
+            return True
+
+        return False
+
+    nueva_head = None
+    nueva_tail = None
 
     actual = lista.head
-    while actual is not None:
-        siguiente = actual.next
-        actual.prev = None
-        actual.next = None
 
-        if lista.head is not actual:
-            cursor = lista.head
+    while actual is not None:
+
+        siguiente = actual.next
+
+        actual.next = None
+        actual.prev = None
+
+        if nueva_head is None:
+
+            nueva_head = actual
+            nueva_tail = actual
+
+        else:
+
+            cursor = nueva_head
             anterior = None
-            while cursor is not None and prioridad(cursor.value) <= prioridad(actual.value):
+
+            while cursor is not None:
+
+                if debe_ir_despues(cursor.value, actual.value):
+                    break
+
                 anterior = cursor
                 cursor = cursor.next
 
             if anterior is None:
-                actual.next = lista.head
-                lista.head.prev = actual
-                lista.head = actual
-            else:
-                actual.prev = anterior
-                actual.next = anterior.next
-                if anterior.next is not None:
-                    anterior.next.prev = actual
-                else:
-                    lista.tail = actual
+
+                actual.next = nueva_head
+                nueva_head.prev = actual
+                nueva_head = actual
+
+            elif cursor is None:
+
                 anterior.next = actual
-        else:
-            lista.tail = lista.head
+                actual.prev = anterior
+                nueva_tail = actual
+
+            else:
+
+                anterior.next = actual
+                actual.prev = anterior
+
+                actual.next = cursor
+                cursor.prev = actual
 
         actual = siguiente
 
-    cursor = lista.head
-    while cursor is not None and cursor.next is not None:
-        cursor = cursor.next
-    lista.tail = cursor
+    lista.head = nueva_head
+    lista.tail = nueva_tail
 
     print("Punto 6")
     mostrar_lista("Lista reordenada por triage y categoría:", lista)
+
     return lista
 
 
